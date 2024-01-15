@@ -91,7 +91,6 @@ def optimize_by_onnxruntime(
         optimized_model_path (str): the path of optimized model
     """
     assert opt_level in [1, 2, 99]
-    from torch import version as torch_version
 
     import onnxruntime
 
@@ -166,6 +165,7 @@ def optimize_by_onnxruntime(
     else:
         providers = []
 
+        from torch import version as torch_version
         if torch_version.hip:
             providers.append("MIGraphXExecutionProvider")
             providers.append("ROCMExecutionProvider")
