@@ -35,6 +35,8 @@ def quant_pre_process(
     all_tensors_to_one_file: bool = False,
     external_data_location: Optional[str] = None,
     external_data_size_threshold: int = 1024,
+    custom_shape_infer_class = None,
+    custom_ops_library = None,
 ) -> None:
     """Shape inference and model optimization, in preparation for quantization.
 
@@ -68,13 +70,22 @@ def quant_pre_process(
 
         if not skip_symbolic_shape:
             logger.info("Performing symbolic shape inference...")
-            model = SymbolicShapeInference.infer_shapes(
-                onnx.load(input_model_path),
-                int_max,
-                auto_merge,
-                guess_output_rank,
-                verbose,
-            )
+            if custom_shape_infer_class is None:
+                model = SymbolicShapeInference.infer_shapes(
+                    onnx.load(input_model_path),
+                    int_max,
+                    auto_merge,
+                    guess_output_rank,
+                    verbose,
+                )
+            else:
+                model = custom_shape_infer_class.infer_shapes(
+                    onnx.load(input_model_path),
+                    int_max,
+                    auto_merge,
+                    guess_output_rank,
+                    verbose,
+                )
 
         if not skip_optimization:
             # Use ORT optimizers (native code) to optimize model
@@ -99,6 +110,8 @@ def quant_pre_process(
                 sess_option = onnxruntime.SessionOptions()
                 sess_option.optimized_model_filepath = opt_model_path
                 sess_option.graph_optimization_level = onnxruntime.GraphOptimizationLevel.ORT_ENABLE_BASIC
+                if custom_ops_library is not None:
+                    sess_option.register_custom_ops_library(custom_ops_library)
                 sess = onnxruntime.InferenceSession(input_model_path, sess_option, providers=["CPUExecutionProvider"])
                 # Close the session to avoid the cleanup error on Windows for temp folders
                 # https://github.com/microsoft/onnxruntime/issues/17627

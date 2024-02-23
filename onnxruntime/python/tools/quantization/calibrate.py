@@ -164,6 +164,7 @@ class CalibraterBase:
         augmented_model_path="augmented_model.onnx",
         symmetric=False,
         use_external_data_format=False,
+        custom_ops_library=None,
     ):
         """
         :param model_path: ONNX model to calibrate. It should be a model file path
@@ -187,6 +188,7 @@ class CalibraterBase:
         self.augment_model = None
         self.infer_session = None
         self.execution_providers = ["CPUExecutionProvider"]
+        self.custom_ops_library = custom_ops_library
 
     def set_execution_providers(self, execution_providers=["CPUExecutionProvider"]):  # noqa: B006
         """
@@ -201,6 +203,8 @@ class CalibraterBase:
         """
         sess_options = onnxruntime.SessionOptions()
         sess_options.graph_optimization_level = onnxruntime.GraphOptimizationLevel.ORT_DISABLE_ALL
+        if self.custom_ops_library is not None:
+            sess_options.register_custom_ops_library(self.custom_ops_library)
         self.infer_session = onnxruntime.InferenceSession(
             self.augmented_model_path,
             sess_options=sess_options,
@@ -274,6 +278,7 @@ class MinMaxCalibrater(CalibraterBase):
         moving_average=False,
         averaging_constant=0.01,
         max_intermediate_outputs=None,
+        custom_ops_library=None,
     ):
         """
         :param model_path: ONNX model to calibrate. It is a model path
@@ -291,6 +296,7 @@ class MinMaxCalibrater(CalibraterBase):
             augmented_model_path=augmented_model_path,
             symmetric=symmetric,
             use_external_data_format=use_external_data_format,
+            custom_ops_library=custom_ops_library,
         )
         self.intermediate_outputs = []
         self.calibrate_tensors_range = None
@@ -458,6 +464,7 @@ class HistogramCalibrater(CalibraterBase):
         num_quantized_bins=2048,
         percentile=99.999,
         scenario="same",
+        custom_ops_library=None,
     ):
         """
         :param model_path: ONNX model to calibrate. It is a model path.
@@ -477,6 +484,7 @@ class HistogramCalibrater(CalibraterBase):
             augmented_model_path=augmented_model_path,
             symmetric=symmetric,
             use_external_data_format=use_external_data_format,
+            custom_ops_library=custom_ops_library,
         )
         self.intermediate_outputs = []
         self.calibrate_tensors_range = None
@@ -577,6 +585,7 @@ class EntropyCalibrater(HistogramCalibrater):
         symmetric=False,
         num_bins=128,
         num_quantized_bins=128,
+        custom_ops_library=None,
     ):
         """
         :param model_path: ONNX model to calibrate. It is a model path
@@ -597,6 +606,7 @@ class EntropyCalibrater(HistogramCalibrater):
             symmetric=symmetric,
             num_bins=num_bins,
             num_quantized_bins=num_quantized_bins,
+            custom_ops_library=custom_ops_library,
         )
 
 
@@ -611,6 +621,7 @@ class PercentileCalibrater(HistogramCalibrater):
         symmetric=False,
         num_bins=2048,
         percentile=99.999,
+        custom_ops_library=None,
     ):
         """
         :param model_path: ONNX model to calibrate. It is a model path
@@ -631,6 +642,7 @@ class PercentileCalibrater(HistogramCalibrater):
             symmetric=symmetric,
             num_bins=num_bins,
             percentile=percentile,
+            custom_ops_library=custom_ops_library,
         )
 
 
@@ -1104,6 +1116,7 @@ def create_calibrator(
         moving_average = extra_options.get("moving_average", False)
         averaging_constant = extra_options.get("averaging_constant", 0.01)
         max_intermediate_outputs = extra_options.get("max_intermediate_outputs", None)
+        custom_ops_library = extra_options.get("custom_ops_library", None)
         calibrator = MinMaxCalibrater(
             model,
             op_types_to_calibrate,
@@ -1113,12 +1126,14 @@ def create_calibrator(
             moving_average=moving_average,
             averaging_constant=averaging_constant,
             max_intermediate_outputs=max_intermediate_outputs,
+            custom_ops_library=custom_ops_library,
         )
     elif calibrate_method == CalibrationMethod.Entropy:
         # default settings for entropy algorithm
         num_bins = extra_options.get("num_bins", 128)
         num_quantized_bins = extra_options.get("num_quantized_bins", 128)
         symmetric = extra_options.get("symmetric", False)
+        custom_ops_library = extra_options.get("custom_ops_library", None)
         calibrator = EntropyCalibrater(
             model,
             op_types_to_calibrate,
@@ -1127,12 +1142,14 @@ def create_calibrator(
             symmetric=symmetric,
             num_bins=num_bins,
             num_quantized_bins=num_quantized_bins,
+            custom_ops_library=custom_ops_library,
         )
     elif calibrate_method == CalibrationMethod.Percentile:
         # default settings for percentile algorithm
         num_bins = extra_options.get("num_bins", 2048)
         percentile = extra_options.get("percentile", 99.999)
         symmetric = extra_options.get("symmetric", True)
+        custom_ops_library = extra_options.get("custom_ops_library", None)
         calibrator = PercentileCalibrater(
             model,
             op_types_to_calibrate,
@@ -1141,12 +1158,14 @@ def create_calibrator(
             symmetric=symmetric,
             num_bins=num_bins,
             percentile=percentile,
+            custom_ops_library=custom_ops_library,
         )
 
     elif calibrate_method == CalibrationMethod.Distribution:
         # default settings for percentile algorithm
         num_bins = extra_options.get("num_bins", 2048)
         scenario = extra_options.get("scenario", "same")
+        custom_ops_library = extra_options.get("custom_ops_library", None)
 
         calibrator = DistributionCalibrater(
             model,
@@ -1155,6 +1174,7 @@ def create_calibrator(
             use_external_data_format=use_external_data_format,
             num_bins=num_bins,
             scenario=scenario,
+            custom_ops_library=custom_ops_library,
         )
 
     if calibrator:
