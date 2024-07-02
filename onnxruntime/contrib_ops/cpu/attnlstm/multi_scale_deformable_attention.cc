@@ -59,9 +59,9 @@ MultiScaleDeformableAttention::MultiScaleDeformableAttention(const OpKernelInfo&
 Status MultiScaleDeformableAttention::Compute(_Inout_ OpKernelContext* context) const {
   const auto* value = context->Input<Tensor>(0);  // Shape: [1, S, M, D]
   const auto* value_spatial_shapes = context->Input<Tensor>(1); // Shape: [L, 2]
-  const auto* reference_points = context->Input<Tensor>(2); // Shape: [1, L, Q, 2]
-  const auto* sampling_locations = context->Input<Tensor>(3); // Shape: [1, L, Q, M, P, 2]
-  const auto* attention_weights = context->Input<Tensor>(4);  // Shape: [1, L, Q, M, P]
+  const auto* reference_points = context->Input<Tensor>(2); // Shape: [1, Q, L, 2]
+  const auto* sampling_locations = context->Input<Tensor>(3); // Shape: [1, Q, L, M, P, 2]
+  const auto* attention_weights = context->Input<Tensor>(4);  // Shape: [1, Q, L, P, M]
 
   const auto& value_input_shape = value->Shape();
   const auto& value_spatial_shapes_input_shape = value_spatial_shapes->Shape();
@@ -70,8 +70,8 @@ Status MultiScaleDeformableAttention::Compute(_Inout_ OpKernelContext* context) 
   const int64_t M = value_input_shape[2];
   const int64_t D = value_input_shape[3];
   const int64_t L = value_spatial_shapes_input_shape[0];
-  const int64_t P = attention_weights_input_shape[4];
-  const int64_t Q = attention_weights_input_shape[2];
+  const int64_t P = attention_weights_input_shape[3];
+  const int64_t Q = attention_weights_input_shape[1];
 
   auto* output = context->Output(0, { 1, Q, M*D }); // Shape: [1, Q, M*D]
   float * output_ptr = output->MutableData<float>();
@@ -170,12 +170,12 @@ void MultiScaleDeformableAttention::ComputeGeneric(
       int64_t feature_map_height = value_spatial_shapes[source_level * 2];
       int64_t feature_map_width = value_spatial_shapes[source_level * 2 + 1];
       for(std::ptrdiff_t iq = task_info.start; iq < task_info.end; ++iq){
-        float reference_point_h = reference_points[(source_level * Q + iq) * 2 + 1];
-        float reference_point_w = reference_points[(source_level * Q + iq) * 2];
+        float reference_point_h = reference_points[(iq * L + source_level) * 2 + 1];
+        float reference_point_w = reference_points[(iq * L + source_level) * 2];
         for(int im = 0; im < M; ++im){
           for(int ip = 0; ip < P; ++ip){
-            float sampling_location_h = sampling_locations[((source_level * Q + iq) * M + im) * P * 2 + ip * 2 + 1];
-            float sampling_location_w = sampling_locations[((source_level * Q + iq) * M + im) * P * 2 + ip * 2];
+            float sampling_location_h = sampling_locations[((iq * L + source_level) * M + im) * P * 2 + ip * 2 + 1];
+            float sampling_location_w = sampling_locations[((iq * L + source_level) * M + im) * P * 2 + ip * 2];
             sampling_location_h += reference_point_h;
             sampling_location_w += reference_point_w;
             sampling_location_h -= 0.5f;  // align_corner = False
@@ -220,7 +220,7 @@ void MultiScaleDeformableAttention::ComputeGeneric(
               }
             }
 
-            float weight = attention_weights[((source_level * Q + iq) * M + im) * P + ip];
+            float weight = attention_weights[((iq * L + source_level) * P + ip) * M + im];
             float *output_ptr = output + (iq * M + im) * D;
             for(int id = 0; id < D; ++id){
               output_ptr[id] += weight * thread_buffer[id];
