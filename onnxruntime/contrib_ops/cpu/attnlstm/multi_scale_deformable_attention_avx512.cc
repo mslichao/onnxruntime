@@ -125,11 +125,11 @@ namespace contrib {
         attention_head_addr_offset = _mm512_slli_epi64(attention_head_addr_offset, 1);
 
         for(int32_t iq = ranges[threadId].first; iq < ranges[threadId].second; ++iq){
-          auto offset = (source_level * Q + iq) * M * P * 2;
+          auto offset = (iq * L + source_level) * M * P * 2;
 
           // Load reference point for the current query
-          float reference_point_h = reference_points[(source_level * Q + iq) * 2 + 1];
-          float reference_point_w = reference_points[(source_level * Q + iq) * 2];
+          float reference_point_h = reference_points[(iq * L + source_level) * 2 + 1];
+          float reference_point_w = reference_points[(iq * L + source_level) * 2];
           __m512 reference_point_h_vec = _mm512_set1_ps(reference_point_h);
           __m512 reference_point_w_vec = _mm512_set1_ps(reference_point_w);
 
@@ -451,7 +451,7 @@ namespace contrib {
 
               for(int64_t ip = 0; ip < P; ++ip)
               {
-                  const int64_t weight_index = (offset >> 1) + location_index;
+                  const int64_t weight_index = ((iq * L + source_level) * P + ip) * M + im;
                   __m512 weight = _mm512_set1_ps(attention_weights[weight_index]);
 
                   __m512 data_tl = _mm512_loadu_ps(reinterpret_cast<float*>(addr_tl[location_index]));
