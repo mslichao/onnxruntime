@@ -16,6 +16,8 @@ namespace contrib {
 MultiScaleDeformableAttention::MultiScaleDeformableAttention(const OpKernelInfo& info) : OpKernel(info) {
 #ifdef _WIN32
   // Windows
+#ifdef _M_AMD64
+  // x86-64
   std::array<int, 4> cpui;
   __cpuid(cpui.data(), 0);
   int nIds = cpui[0];
@@ -41,6 +43,12 @@ MultiScaleDeformableAttention::MultiScaleDeformableAttention(const OpKernelInfo&
   else{
     route = ImplementationRoute::Generic;
   }
+
+#endif  // _M_AMD64
+#if defined(_M_ARM) || defined(_M_ARM64) || defined(_M_ARM64EC)
+  // ARM
+  route = ImplementationRoute::Generic;
+#endif  // _M_ARM || _M_ARM64 || _M_ARM64EC
 
 #elif defined(__linux__)
   // Linux
