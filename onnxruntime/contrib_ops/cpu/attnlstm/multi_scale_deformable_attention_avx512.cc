@@ -1,10 +1,15 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-#if (defined(_WIN32) && defined(_M_AMD64)) || (defined(__linux__) && defined(__x86_64__))
+#if defined(_WIN32) && defined(_M_AMD64)
+#define ON_X64 1
+#elif defined(__linux__) && defined(__x86_64__)
+#define ON_X64 1
+#endif
 
 #include "contrib_ops/cpu/attnlstm/multi_scale_deformable_attention.h"
 
+#ifdef ON_X64
 #include <cstring>
 
 #include <immintrin.h>
@@ -508,4 +513,4 @@ namespace onnxruntime::contrib {
     concurrency::ThreadPool* thread_pool,
     AllocatorPtr alloc) const {}
 }  // namespace onnxruntime::contrib
-#endif  // x64 arch
+#endif  // ON_X64
