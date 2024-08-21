@@ -4,22 +4,16 @@
 #pragma once
 
 #include "core/framework/op_kernel.h"
+#include "contrib_ops/cpu/attnlstm/multi_scale_deformable_attention_base.h"
 
 namespace onnxruntime {
 namespace contrib {
 
-class MultiScaleDeformableAttention final : public OpKernel {
+class MultiScaleDeformableAttention final : public MultiScaleDeformableAttentionBase {
   public:
   MultiScaleDeformableAttention(const OpKernelInfo& info);
-  [[nodiscard]] Status Compute(_Inout_ OpKernelContext* context) const override;
-  private:
-  enum class ImplementationRoute {
-    AVX512,
-    Generic
-  };
-
-  ImplementationRoute route;
-
+  ~MultiScaleDeformableAttention() = default;
+  protected:
   void ComputeAVX512(
     const float* value,
     const int64_t* value_spatial_shapes,
@@ -33,7 +27,7 @@ class MultiScaleDeformableAttention final : public OpKernel {
     int64_t D,
     int64_t Q,
     concurrency::ThreadPool* thread_pool,
-    AllocatorPtr alloc) const;
+    AllocatorPtr alloc) const override;
 
   void ComputeGeneric(
     const float* value,
@@ -48,7 +42,7 @@ class MultiScaleDeformableAttention final : public OpKernel {
     int64_t D,
     int64_t Q,
     concurrency::ThreadPool* thread_pool,
-    AllocatorPtr alloc) const;
+    AllocatorPtr alloc) const override;
 };
 
 }   // namespace contrib
