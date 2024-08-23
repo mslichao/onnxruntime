@@ -8,7 +8,9 @@
 namespace onnxruntime::contrib::cuda {
   class MultiScaleDeformableAttention final : public onnxruntime::contrib::MultiScaleDeformableAttentionBase {
     public:
-    MultiScaleDeformableAttention(const onnxruntime::OpKernelInfo& info): onnxruntime::contrib::MultiScaleDeformableAttentionBase(info) {}
+    MultiScaleDeformableAttention(const onnxruntime::OpKernelInfo& info): onnxruntime::contrib::MultiScaleDeformableAttentionBase(info) {
+      route = ImplementationRoute::CUDA;
+    }
     ~MultiScaleDeformableAttention() = default;
     protected:
     void ComputeCUDA(
