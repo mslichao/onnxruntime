@@ -67,6 +67,7 @@ class CUDA_MS_OP_CLASS_NAME(1, BiasDropout);
 class CUDA_MS_OP_CLASS_NAME(1, BitmaskDropout);
 class CUDA_MS_OP_CLASS_NAME(1, BitmaskBiasDropout);
 class CUDA_MS_OP_CLASS_NAME(1, NGramRepeatBlock);
+class CUDA_MS_OP_CLASS_NAME(1, MultiScaleDeformableAttention);
 
 // These ops were experimental ops in onnx domain which have been removed now. We add them here as
 // contrib ops to maintain backward compatibility
