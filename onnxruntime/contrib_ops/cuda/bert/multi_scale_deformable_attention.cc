@@ -23,4 +23,18 @@ namespace onnxruntime::contrib::cuda{
     memset(output, 0, Q * M * D * sizeof(float));
     return;
   }
+
+  ONNX_OPERATOR_KERNEL_EX(
+    MultiScaleDeformableAttention,
+    kMSDomain,
+    1,
+    kCudaExecutionProvider,
+    KernelDefBuilder()
+    .TypeConstraint(
+      "T1",
+      {DataTypeImpl::GetTensorType<float>()})
+    .TypeConstraint(
+      "T2",
+      {DataTypeImpl::GetTensorType<int64_t>()}),
+    MultiScaleDeformableAttention)
 }   // namespace onnxruntime::contrib::cuda
