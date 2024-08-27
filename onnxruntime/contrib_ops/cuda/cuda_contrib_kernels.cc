@@ -272,6 +272,7 @@ Status RegisterCudaContribKernels(KernelRegistry& kernel_registry) {
       BuildKernelCreateInfo<CUDA_MS_OP_TYPED_CLASS_NAME(1, float, ComplexMulConj)>,
       BuildKernelCreateInfo<CUDA_MS_OP_TYPED_CLASS_NAME(1, MLFloat16, ComplexMulConj)>,
       BuildKernelCreateInfo<CUDA_MS_OP_CLASS_NAME(1, NGramRepeatBlock)>,
+      BuildKernelCreateInfo<CUDA_MS_OP_CLASS_NAME(1, MultiScaleDeformableAttention)>,
 
       // These ops were experimental ops in onnx domain which have been removed now. We add them here as
       // contrib ops to maintain backward compatibility
