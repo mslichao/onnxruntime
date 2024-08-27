@@ -36,5 +36,5 @@ namespace onnxruntime::contrib::cuda{
     .TypeConstraint(
       "T2",
       {DataTypeImpl::GetTensorType<int64_t>()}),
-    MultiScaleDeformableAttention)
+    MultiScaleDeformableAttention);
 }   // namespace onnxruntime::contrib::cuda
