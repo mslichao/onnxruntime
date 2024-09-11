@@ -32,6 +32,7 @@ namespace onnxruntime::contrib::cuda{
       value->Data<float>(),
       value_spatial_shapes->Data<int64_t>(),
       sampling_locations->Data<float>(),
+      reference_points->Data<float>(),
       attention_weights->Data<float>(),
       B,
       S,

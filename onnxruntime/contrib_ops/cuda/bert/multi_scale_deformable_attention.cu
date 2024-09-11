@@ -127,6 +127,7 @@ void ms_deformable_im2col_gpu_kernel_wrapper(
   const float *data_value,
   const int64_t *data_spatial_shapes,
   const float *data_sampling_loc,
+  const float *data_reference_points,
   const float *data_attn_weight,
   const int batch_size,
   const int spatial_size,
