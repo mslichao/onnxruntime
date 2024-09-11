@@ -17,15 +17,30 @@ namespace onnxruntime::contrib::cuda{
     const auto& value_spatial_shapes_input_shape = value_spatial_shapes->Shape();
     const auto& attention_weights_input_shape = attention_weights->Shape();
 
+    const int64_t B = value_input_shape[0]; // 1
+    const int64_t S = value_input_shape[1];
     const int64_t M = value_input_shape[2];
     const int64_t D = value_input_shape[3];
     const int64_t L = value_spatial_shapes_input_shape[0];
     const int64_t P = attention_weights_input_shape[4];
     const int64_t Q = attention_weights_input_shape[2];
 
-    auto* output = context->Output(0, { 1, Q, M*D }); // Shape: [1, Q, M*D]
+    auto* output = context->Output(0, { B, Q, M*D }); // Shape: [1, Q, M*D]
     float * output_ptr = output->MutableData<float>();
     // memset(output_ptr, 0, Q * M * D * sizeof(float));  // qiduan: cannot use memset on GPU memory
+    ms_deformable_im2col_gpu_kernel_wrapper(
+      value->Data<float>(),
+      value_spatial_shapes->Data<int64_t>(),
+      sampling_locations->Data<float>(),
+      attention_weights->Data<float>(),
+      B,
+      S,
+      M,
+      D,
+      L,
+      Q,
+      P,
+      output_ptr);
     return Status::OK();
   }
 

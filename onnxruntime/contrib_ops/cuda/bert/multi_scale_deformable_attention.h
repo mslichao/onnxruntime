@@ -17,3 +17,17 @@ namespace onnxruntime::contrib::cuda {
     Status ComputeInternal(OpKernelContext* context) const override;
   };
 }   // namespace onnxruntime::contrib::cuda
+
+void ms_deformable_im2col_gpu_kernel_wrapper(
+  const float *data_value,
+  const int64_t *data_spatial_shapes,
+  const float *data_sampling_loc,
+  const float *data_attn_weight,
+  const int batch_size,
+  const int spatial_size,
+  const int num_heads,
+  const int channels,
+  const int num_levels,
+  const int num_query,
+  const int num_point,
+  float *data_col);
