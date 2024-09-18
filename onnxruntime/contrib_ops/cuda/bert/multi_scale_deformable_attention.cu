@@ -63,6 +63,7 @@ __global__ void ms_deformable_im2col_gpu_kernel(const int n,
                                                 const float *data_value,
                                                 const int64_t *data_spatial_shapes,
                                                 const float *data_sampling_loc,
+                                                const float *data_reference_points,
                                                 const float *data_attn_weight,
                                                 const int batch_size,
                                                 const int spatial_size,
@@ -86,8 +87,9 @@ __global__ void ms_deformable_im2col_gpu_kernel(const int n,
     const int b_col = _temp;
 
     float *data_col_ptr = data_col + index;
-    int data_weight_ptr = sampling_index * num_levels * num_point;
+    int data_weight_ptr = sampling_index * num_point;
     int data_loc_w_ptr = data_weight_ptr << 1;
+    int data_reference_ptr = (b_col * num_levels * num_query + 0 * num_query + q_col) << 1;
     const int qid_stride = num_heads * channels;
     const int data_value_ptr_init_offset = b_col * spatial_size * qid_stride;
     float col = 0;
@@ -101,8 +103,8 @@ __global__ void ms_deformable_im2col_gpu_kernel(const int n,
       const float *data_value_ptr = data_value + (data_value_ptr_init_offset + level_start_id * qid_stride);
       for (int p_col=0; p_col < num_point; ++p_col)
       {
-        const float loc_w = data_sampling_loc[data_loc_w_ptr];
-        const float loc_h = data_sampling_loc[data_loc_w_ptr + 1];
+        const float loc_w = data_sampling_loc[data_loc_w_ptr] + data_reference_points[data_reference_ptr];
+        const float loc_h = data_sampling_loc[data_loc_w_ptr + 1] + data_reference_points[data_reference_ptr + 1];
         const float weight = data_attn_weight[data_weight_ptr];
 
         // Note(qiduan): scaling is removed
@@ -118,6 +120,9 @@ __global__ void ms_deformable_im2col_gpu_kernel(const int n,
         data_loc_w_ptr += 2;
       }
       level_start_id += spatial_h * spatial_w;
+      data_weight_ptr = sampling_index * num_point + l_col * num_query * num_heads * num_point;
+      data_loc_w_ptr = data_weight_ptr << 1;
+      data_reference_ptr += num_query << 1;
     }
     *data_col_ptr = col;
   }
@@ -173,6 +178,7 @@ void ms_deformable_im2col_gpu_kernel_wrapper(
     data_value,
     data_spatial_shapes,
     data_sampling_loc,
+    data_reference_points,
     data_attn_weight,
     batch_size,
     spatial_size,
