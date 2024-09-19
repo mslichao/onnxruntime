@@ -2,6 +2,8 @@
 
 #include <stdexcept>
 
+#include "core/framework/stream_handles.h"
+
 #define CUDA_KERNEL_LOOP(i, n)                          \
   for (int i = blockIdx.x * blockDim.x + threadIdx.x;   \
       i < (n);                                          \
@@ -141,7 +143,8 @@ void ms_deformable_im2col_gpu_kernel_wrapper(
   const int num_levels,
   const int num_query,
   const int num_point,
-  float *output)
+  float *output,
+  onnxruntime::Stream *device_stream)
 {
   cudaError_t err;
   int gpuCount = 0;
@@ -168,10 +171,7 @@ void ms_deformable_im2col_gpu_kernel_wrapper(
   int num_threads = std::min(1024, property.maxThreadsPerBlock);
   int blocks = (num_output + num_threads - 1) / num_threads;
 
-  cudaStream_t stream;
-  if((err = cudaStreamCreate(&stream)) != cudaSuccess){
-    throw std::runtime_error(cudaGetErrorString(err));
-  }
+  cudaStream_t stream = (device_stream == nullptr) ? static_cast<cudaStream_t>(device_stream->GetHandle()) : nullptr;
 
   ms_deformable_im2col_gpu_kernel<<<blocks, num_threads, num_threads*3*sizeof(float), stream>>>(
     num_output,
@@ -190,7 +190,7 @@ void ms_deformable_im2col_gpu_kernel_wrapper(
     output
   );
 
-  if((err = cudaStreamDestroy(stream)) != cudaSuccess){
+  if((err = cudaStreamSynchronize(stream)) != cudaSuccess){
     throw std::runtime_error(cudaGetErrorString(err));
   }
 }

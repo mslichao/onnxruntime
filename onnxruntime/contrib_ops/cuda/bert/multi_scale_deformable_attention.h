@@ -31,4 +31,5 @@ void ms_deformable_im2col_gpu_kernel_wrapper(
   const int num_levels,
   const int num_query,
   const int num_point,
-  float *data_col);
+  float *output,
+  onnxruntime::Stream * device_stream);

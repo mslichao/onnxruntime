@@ -17,6 +17,8 @@ namespace onnxruntime::contrib::cuda{
     const auto& value_spatial_shapes_input_shape = value_spatial_shapes->Shape();
     const auto& attention_weights_input_shape = attention_weights->Shape();
 
+    onnxruntime::Stream* stream_ptr = context->GetComputeStream();
+
     const int64_t B = value_input_shape[0]; // 1
     const int64_t S = value_input_shape[1];
     const int64_t M = value_input_shape[2];
@@ -41,7 +43,8 @@ namespace onnxruntime::contrib::cuda{
       L,
       Q,
       P,
-      output_ptr);
+      output_ptr,
+      stream_ptr);
     return Status::OK();
   }
 
