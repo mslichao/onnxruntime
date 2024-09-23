@@ -67,43 +67,43 @@ __global__ void ms_deformable_im2col_gpu_kernel(const int n,
                                                 const float *data_sampling_loc,
                                                 const float *data_reference_points,
                                                 const float *data_attn_weight,
-                                                const int batch_size,
-                                                const int spatial_size,
-                                                const int num_heads,
-                                                const int channels,
-                                                const int num_levels,
-                                                const int num_query,
-                                                const int num_point,
+                                                const int B,
+                                                const int S,
+                                                const int M,
+                                                const int C,
+                                                const int L,
+                                                const int Q,
+                                                const int P,
                                                 float *data_col)
 {
   CUDA_KERNEL_LOOP(index, n)
   {
     int _temp = index;
-    const int c_col = _temp % channels;
-    _temp /= channels;
-    const int sampling_index = _temp;
-    const int m_col = _temp % num_heads;
-    _temp /= num_heads;
-    const int q_col = _temp % num_query;
-    _temp /= num_query;
-    const int b_col = _temp;
+    const int c = _temp % C;
+    _temp /= C;
+    const int m = _temp % M;
+    _temp /= M;
+    const int q = _temp % Q;
+    _temp /= Q;
+    const int b = _temp;
 
     float *data_col_ptr = data_col + index;
-    int data_weight_ptr = sampling_index * num_point;
-    int data_loc_w_ptr = data_weight_ptr << 1;
-    int data_reference_ptr = (b_col * num_levels * num_query + 0 * num_query + q_col) << 1;
-    const int qid_stride = num_heads * channels;
-    const int data_value_ptr_init_offset = b_col * spatial_size * qid_stride;
-    float col = 0;
+    // data_attn_weight shape: [B, L, Q, M, P]
+    int data_weight_ptr = 0;
+    // data_sampling_loc shape: [B, L, Q, M, P, 2]
+    int data_loc_w_ptr = 0;
+    int data_reference_ptr = (b * L * Q + 0 * Q + q) << 1;
+    float res = 0;
 
     int level_start_id = 0;
-    for (int l_col=0; l_col < num_levels; ++l_col)
+    for (int l = 0; l < L; ++l)
     {
-      const int spatial_h_ptr = l_col << 1;
-      const int spatial_h = data_spatial_shapes[spatial_h_ptr];
-      const int spatial_w = data_spatial_shapes[spatial_h_ptr + 1];
-      const float *data_value_ptr = data_value + (data_value_ptr_init_offset + level_start_id * qid_stride);
-      for (int p_col=0; p_col < num_point; ++p_col)
+      data_weight_ptr = ((b * L + l) * Q + q) * M + m * P;  // at p=0
+      data_loc_w_ptr = data_weight_ptr << 1;
+      const int spatial_h = data_spatial_shapes[l * 2];
+      const int spatial_w = data_spatial_shapes[l * 2 + 1];
+      const float *data_value_ptr = data_value + ((b * S + level_start_id) * M + m) * C + c;
+      for (int p = 0; p < P; ++p)
       {
         const float loc_w = data_sampling_loc[data_loc_w_ptr] + data_reference_points[data_reference_ptr];
         const float loc_h = data_sampling_loc[data_loc_w_ptr + 1] + data_reference_points[data_reference_ptr + 1];
@@ -115,18 +115,16 @@ __global__ void ms_deformable_im2col_gpu_kernel(const int n,
 
         if (h_im > -1 && w_im > -1 && h_im < spatial_h && w_im < spatial_w)
         {
-          col += ms_deform_attn_im2col_bilinear(data_value_ptr, spatial_h, spatial_w, num_heads, channels, h_im, w_im, m_col, c_col) * weight;
+          res += ms_deform_attn_im2col_bilinear(data_value_ptr, spatial_h, spatial_w, M, C, h_im, w_im, m, c) * weight;
         }
 
         data_weight_ptr += 1;
         data_loc_w_ptr += 2;
       }
       level_start_id += spatial_h * spatial_w;
-      data_weight_ptr = sampling_index * num_point + l_col * num_query * num_heads * num_point;
-      data_loc_w_ptr = data_weight_ptr << 1;
-      data_reference_ptr += num_query << 1;
+      data_reference_ptr += Q << 1;
     }
-    *data_col_ptr = col;
+    *data_col_ptr = res;
   }
 }
 
