@@ -1,4 +1,5 @@
 #include <cuda_runtime.h>
+#include <assert.h>
 
 #include <stdexcept>
 
@@ -76,6 +77,7 @@ __global__ void ms_deformable_im2col_gpu_kernel(const int n,
                                                 const int P,
                                                 float *data_col)
 {
+  assert(n == B * Q * M * C);
   CUDA_KERNEL_LOOP(index, n)
   {
     int _temp = index;
@@ -86,6 +88,9 @@ __global__ void ms_deformable_im2col_gpu_kernel(const int n,
     const int q = _temp % Q;
     _temp /= Q;
     const int b = _temp;
+    assert(b == 0);
+    assert(B == 1);
+    assert(L == 4);
 
     float *data_col_ptr = data_col + index;
     // data_attn_weight shape: [B, L, Q, M, P]
@@ -102,7 +107,7 @@ __global__ void ms_deformable_im2col_gpu_kernel(const int n,
       data_loc_w_ptr = data_weight_ptr << 1;
       const int spatial_h = data_spatial_shapes[l * 2];
       const int spatial_w = data_spatial_shapes[l * 2 + 1];
-      const float *data_value_ptr = data_value + ((b * S + level_start_id) * M + m) * C + c;
+      const float *data_value_ptr = data_value + (b * S + level_start_id) * M * C;
       for (int p = 0; p < P; ++p)
       {
         const float loc_w = data_sampling_loc[data_loc_w_ptr] + data_reference_points[data_reference_ptr];

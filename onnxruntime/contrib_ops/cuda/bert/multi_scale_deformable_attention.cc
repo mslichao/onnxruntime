@@ -59,7 +59,6 @@ namespace onnxruntime::contrib::cuda{
       {DataTypeImpl::GetTensorType<float>()})
     .TypeConstraint(
       "T2",
-      {DataTypeImpl::GetTensorType<int64_t>()})
-    .InputMemoryType(OrtMemTypeCPUInput, 1),
+      {DataTypeImpl::GetTensorType<int64_t>()}),
     MultiScaleDeformableAttention);
 }   // namespace onnxruntime::contrib::cuda
