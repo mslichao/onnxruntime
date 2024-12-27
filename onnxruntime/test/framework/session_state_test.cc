@@ -256,6 +256,11 @@ TEST(SessionStateTest, TestInitializerMemoryAllocatedUsingNonArenaMemory) {
     SessionState session_state(graph, execution_providers, nullptr, nullptr, dtm, edlm,
                                DefaultLoggingManager().DefaultLogger(), profiler, sess_options);
 
+#if !defined(ORT_MINIMAL_BUILD) && defined(ORT_MEMORY_PROFILE)
+    MemoryProfiler memory_profiler_;
+    session_state.SetMemoryProfiler(&memory_profiler_);
+#endif
+
     // Partition the graph
     GraphPartitioner partitioner(krm, execution_providers);
     ASSERT_STATUS_OK(partitioner.Partition(
@@ -281,6 +286,10 @@ TEST(SessionStateTest, TestInitializerMemoryAllocatedUsingNonArenaMemory) {
 
     // Assert that we have made 1 Reserve() call (for allocating memory for the sole initializer in the model)
     ASSERT_EQ(alloc_stats.num_reserves, 1);
+
+#if !defined(ORT_MINIMAL_BUILD) && defined(ORT_MEMORY_PROFILE)
+    session_state.GetMemoryProfiler()->GenerateMemoryProfile();
+#endif
   }
 
   // Part 2: Feature turned OFF (i.e.) allocate from arena memory (default behavior)
@@ -315,6 +324,11 @@ TEST(SessionStateTest, TestInitializerMemoryAllocatedUsingNonArenaMemory) {
     SessionState session_state(graph, execution_providers, nullptr, nullptr, dtm, edlm,
                                DefaultLoggingManager().DefaultLogger(), profiler, sess_options);
 
+#if !defined(ORT_MINIMAL_BUILD) && defined(ORT_MEMORY_PROFILE)
+    MemoryProfiler memory_profiler_;
+    session_state.SetMemoryProfiler(&memory_profiler_);
+#endif
+
     // Partition the graph
     GraphPartitioner partitioner(krm, execution_providers);
     ASSERT_STATUS_OK(partitioner.Partition(
@@ -345,6 +359,10 @@ TEST(SessionStateTest, TestInitializerMemoryAllocatedUsingNonArenaMemory) {
 
     // Assert to ensure an allocation was made for the initializer through the arena allocator (Alloc() was invoked)
     ASSERT_EQ(alloc_stats.num_allocs, 1);
+
+#if !defined(ORT_MINIMAL_BUILD) && defined(ORT_MEMORY_PROFILE)
+    session_state.GetMemoryProfiler()->GenerateMemoryProfile();
+#endif
   }
 }
 

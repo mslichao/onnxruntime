@@ -207,7 +207,12 @@ class SessionState {
   profiling::Profiler& Profiler() const noexcept { return profiler_; }
 
 #if !defined(ORT_MINIMAL_BUILD) && defined(ORT_MEMORY_PROFILE)
-  MemoryProfiler* GetMemoryProfiler() const noexcept { return memory_profiler_; }
+  MemoryProfiler* GetMemoryProfiler() const noexcept {
+    if (memory_profiler_ == nullptr) {
+      const_cast<SessionState*>(this)->SetMemoryProfiler(std::make_unique<MemoryProfiler>().release());
+    }
+    return memory_profiler_;
+  }
 
   void SetMemoryProfiler(MemoryProfiler* memory_profiler) noexcept {
     memory_profiler_ = memory_profiler;
