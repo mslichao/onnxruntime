@@ -2410,6 +2410,31 @@ ORT_API_STATUS_IMPL(OrtApis::SessionOptionsSetCustomJoinThreadFn, _Inout_ OrtSes
   API_IMPL_END
 }
 
+static void ConvertAllocatorStatsToOrt(const AllocatorStats& internal_stats, OrtAllocatorStats* out_stats) {
+    out_stats->num_allocs = internal_stats.num_allocs;
+    out_stats->num_reserves = internal_stats.num_reserves;
+    out_stats->num_arena_extensions = internal_stats.num_arena_extensions;
+    out_stats->num_arena_shrinkages = internal_stats.num_arena_shrinkages;
+    out_stats->bytes_in_use = internal_stats.bytes_in_use;
+    out_stats->total_allocated_bytes = internal_stats.total_allocated_bytes;
+    out_stats->max_bytes_in_use = internal_stats.max_bytes_in_use;
+    out_stats->max_alloc_size = internal_stats.max_alloc_size;
+    out_stats->bytes_limit = internal_stats.bytes_limit;
+}
+
+ORT_API_STATUS_IMPL(OrtApis::GetAllocatorStats, _In_ const OrtSession* sess, _In_ OrtMemoryInfoDeviceType device, _Inout_ OrtAllocatorStats* stats) {
+  API_IMPL_BEGIN
+  auto session = reinterpret_cast<const ::onnxruntime::InferenceSession*>(sess);
+  AllocatorStats internal_stats = {};
+  auto status = session->GetAllocatorStats(device, &internal_stats);
+  if (!status.IsOK()) {
+    return ToOrtStatus(status);
+  }
+  ConvertAllocatorStatsToOrt(internal_stats, stats);
+  return nullptr;
+  API_IMPL_END
+}
+
 ORT_API(const OrtTrainingApi*, OrtApis::GetTrainingApi, uint32_t version) {
 #ifdef ENABLE_TRAINING_APIS
   if (version >= 13 && version <= ORT_API_VERSION)
@@ -2809,6 +2834,8 @@ static constexpr OrtApi ort_api_1_to_20 = {
     &OrtApis::RunOptionsAddActiveLoraAdapter,
 
     &OrtApis::SetEpDynamicOptions,
+
+    &OrtApis::GetAllocatorStats,
 };
 
 // OrtApiBase can never change as there is no way to know what version of OrtApiBase is returned by OrtGetApiBase.

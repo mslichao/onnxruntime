@@ -1,18 +1,20 @@
-.\build.bat --config RelWithDebInfo --build_shared_lib --parallel
+.\build.bat --config RelWithDebInfo --build_shared_lib --parallel --build_wheel
 
 
-.\build.bat --update --config RelWithDebInfo --build_shared_lib --parallel
+.\build.bat --update --config RelWithDebInfo --build_shared_lib --parallel --build_wheel
 
-.\build.bat --build --config RelWithDebInfo --build_shared_lib --parallel
+.\build.bat --build --config RelWithDebInfo --build_shared_lib --parallel --build_wheel
+
+.\build.bat --test --config RelWithDebInfo --build_shared_lib --parallel --build_wheel
 
 
-.\build.bat --enable_memory_profile --config RelWithDebInfo --build_shared_lib --parallel
+.\build.bat --enable_memory_profile --config RelWithDebInfo --build_shared_lib --parallel --build_wheel
 
-.\build.bat --update --enable_memory_profile --config RelWithDebInfo --build_shared_lib --parallel
+.\build.bat --update --enable_memory_profile --config RelWithDebInfo --build_shared_lib --parallel --build_wheel
 
-.\build.bat --build --enable_memory_profile --config RelWithDebInfo --build_shared_lib --parallel
+.\build.bat --build --enable_memory_profile --config RelWithDebInfo --build_shared_lib --parallel --build_wheel
 
-.\build.bat --test --enable_memory_profile --config RelWithDebInfo --build_shared_lib --parallel
+.\build.bat --test --enable_memory_profile --config RelWithDebInfo --build_shared_lib --parallel --build_wheel
 
 
 cd onnxruntime\test
@@ -24,6 +26,9 @@ C:\Users\chao\source\onnxruntime\build\Windows\RelWithDebInfo\RelWithDebInfo\onn
 C:\Users\chao\source\onnxruntime\build\Windows\RelWithDebInfo\RelWithDebInfo\onnxruntime_test_all.exe
 
 start build\Windows\RelWithDebInfo\onnxruntime.sln
+
+pip uninstall onnxruntime
+pip install -U build\Windows\RelWithDebInfo\RelWithDebInfo\dist\onnxruntime-1.20.0-cp310-cp310-win_amd64.whl
 
 @REM cuda
 

@@ -1098,6 +1098,11 @@ inline void SessionImpl<T>::SetEpDynamicOptions(const char* const* keys, const c
   ThrowOnError(GetApi().SetEpDynamicOptions(this->p_, keys, values, kv_len));
 }
 
+template <typename T>
+inline void SessionImpl<T>::GetAllocatorStats(OrtMemoryInfoDeviceType device, OrtAllocatorStats* stats) {
+  ThrowOnError(GetApi().GetAllocatorStats(this->p_, device, stats));
+}
+
 }  // namespace detail
 
 inline SessionOptions::SessionOptions() {

@@ -369,6 +369,8 @@ class SessionState {
 
   const SessionOptions& GetSessionOptions() const { return sess_options_; }
 
+  Status GetAllocatorStats(OrtMemoryInfoDeviceType device, AllocatorStats* stats) const;
+
  private:
   ORT_DISALLOW_COPY_ASSIGNMENT_AND_MOVE(SessionState);
 

@@ -545,6 +545,10 @@ class InferenceSession {
    */
   Status AddPrePackedWeightsContainer(PrepackedWeightsContainer* prepacked_weights_container);
 
+  Status GetAllocatorStats(OrtMemoryInfoDeviceType device, AllocatorStats* stats) const {
+    return session_state_->GetAllocatorStats(device, stats);
+  }
+
  protected:
 #if !defined(ORT_MINIMAL_BUILD)
 
