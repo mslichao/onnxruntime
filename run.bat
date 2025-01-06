@@ -27,23 +27,23 @@ start build\Windows\RelWithDebInfo\onnxruntime.sln
 
 @REM cuda
 
-.\build.bat --config RelWithDebInfo --build_shared_lib --parallel --use_cuda --cuda_version 12.4 --cuda_home "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4" --cudnn_home "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4"
+.\build.bat --config RelWithDebInfo --build_shared_lib --parallel --use_cuda --cuda_version 12.4 --cuda_home "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4" --cudnn_home "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4" --build_wheel
 
 
-.\build.bat --update --config RelWithDebInfo --build_shared_lib --parallel --use_cuda --cuda_version 12.4 --cuda_home "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4" --cudnn_home "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4"
+.\build.bat --update --config RelWithDebInfo --build_shared_lib --parallel --use_cuda --cuda_version 12.4 --cuda_home "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4" --cudnn_home "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4" --build_wheel
 
-.\build.bat --build --config RelWithDebInfo --build_shared_lib --parallel --use_cuda --cuda_version 12.4 --cuda_home "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4" --cudnn_home "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4"
+.\build.bat --build --config RelWithDebInfo --build_shared_lib --parallel --use_cuda --cuda_version 12.4 --cuda_home "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4" --cudnn_home "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4" --build_wheel
 
-.\build.bat --test --config RelWithDebInfo --build_shared_lib --parallel --use_cuda --cuda_version 12.4 --cuda_home "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4" --cudnn_home "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4"
+.\build.bat --test --config RelWithDebInfo --build_shared_lib --parallel --use_cuda --cuda_version 12.4 --cuda_home "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4" --cudnn_home "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4" --build_wheel
 
 
-.\build.bat --enable_memory_profile --config RelWithDebInfo --build_shared_lib --parallel --use_cuda --cuda_version 12.4 --cuda_home "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4" --cudnn_home "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4"
+.\build.bat --enable_memory_profile --config RelWithDebInfo --build_shared_lib --parallel --use_cuda --cuda_version 12.4 --cuda_home "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4" --cudnn_home "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4" --build_wheel
 
-.\build.bat --update --enable_memory_profile --config RelWithDebInfo --build_shared_lib --parallel --use_cuda --cuda_version 12.4 --cuda_home "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4" --cudnn_home "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4"
+.\build.bat --update --enable_memory_profile --config RelWithDebInfo --build_shared_lib --parallel --use_cuda --cuda_version 12.4 --cuda_home "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4" --cudnn_home "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4" --build_wheel
 
-.\build.bat --build --enable_memory_profile --config RelWithDebInfo --build_shared_lib --parallel --use_cuda --cuda_version 12.4 --cuda_home "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4" --cudnn_home "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4"
+.\build.bat --build --enable_memory_profile --config RelWithDebInfo --build_shared_lib --parallel --use_cuda --cuda_version 12.4 --cuda_home "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4" --cudnn_home "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4" --build_wheel
 
-.\build.bat --test --enable_memory_profile --config RelWithDebInfo --build_shared_lib --parallel --use_cuda --cuda_version 12.4 --cuda_home "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4" --cudnn_home "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4"
+.\build.bat --test --enable_memory_profile --config RelWithDebInfo --build_shared_lib --parallel --use_cuda --cuda_version 12.4 --cuda_home "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4" --cudnn_home "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4" --build_wheel
 
 
 cd onnxruntime\test
@@ -53,6 +53,13 @@ C:\Users\chao\source\onnxruntime\build\Windows\RelWithDebInfo\RelWithDebInfo\onn
 C:\Users\chao\source\onnxruntime\build\Windows\RelWithDebInfo\RelWithDebInfo\onnxruntime_test_all.exe --gtest_filter=SessionStateTest.*
 
 C:\Users\chao\source\onnxruntime\build\Windows\RelWithDebInfo\RelWithDebInfo\onnxruntime_test_all.exe
+
+C:\Users\chao\source\onnxruntime\build\Windows\RelWithDebInfo\RelWithDebInfo\onnxruntime_perf_test.exe -e cuda -m times -r 1 -I C:\Users\chao\source\onnxruntime\onnxruntime\test\testdata\mul_1.onnx
+C:\Users\chao\source\onnxruntime\build\Windows\RelWithDebInfo\RelWithDebInfo\onnxruntime_perf_test.exe -e cuda -m times -r 100000 -I C:\Users\chao\source\onnxruntime\onnxruntime\test\testdata\mul_1.onnx
+C:\Users\chao\source\onnxruntime\build\Windows\RelWithDebInfo\RelWithDebInfo\onnxruntime_perf_test.exe -e cpu -m times -r 100000 -I C:\Users\chao\source\onnxruntime\onnxruntime\test\testdata\mul_1.onnx
+
+C:\Users\chao\source\onnxruntime\build\Windows\RelWithDebInfo\RelWithDebInfo\onnxruntime_perf_test.exe -e cuda -m times -r 1 -I C:\Users\chao\source\onnxruntime-inference-examples\c_cxx\MNIST\mnist.onnx
+
 
 start build\Windows\RelWithDebInfo\onnxruntime.sln
 
