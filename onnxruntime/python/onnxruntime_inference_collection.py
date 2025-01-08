@@ -395,6 +395,15 @@ class Session:
         """
         self._sess.run_with_ortvaluevector(run_options, feed_names, feeds, fetch_names, fetches, fetch_devices)
 
+    def get_allocator_stats(self, device: str):
+        """
+        Get allocator statistics for the specified device.
+
+        :param device: The device type (e.g., 'cpu', 'gpu').
+        :return: Allocator statistics.
+        """
+        return self._sess.get_allocator_stats(device)
+
 
 class InferenceSession(Session):
     """

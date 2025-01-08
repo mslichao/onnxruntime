@@ -51,6 +51,10 @@ pip install -U build\Windows\RelWithDebInfo\RelWithDebInfo\dist\onnxruntime-1.20
 .\build.bat --test --enable_memory_profile --config RelWithDebInfo --build_shared_lib --parallel --use_cuda --cuda_version 12.4 --cuda_home "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4" --cudnn_home "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4" --build_wheel
 
 
+pip uninstall onnxruntime-gpu
+pip install -U build\Windows\RelWithDebInfo\RelWithDebInfo\dist\onnxruntime_gpu-1.20.0-cp310-cp310-win_amd64.whl
+
+
 cd onnxruntime\test
 
 C:\Users\chao\source\onnxruntime\build\Windows\RelWithDebInfo\RelWithDebInfo\onnxruntime_test_all.exe --gtest_filter=BFCArenaTest.*
