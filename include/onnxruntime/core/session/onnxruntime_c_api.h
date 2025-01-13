@@ -658,17 +658,21 @@ typedef struct OrtOpenVINOProviderOptions {
  *
  * \see OrtApi::GetAllocatorStats
  */
-typedef struct OrtAllocatorStats
-{
-  size_t num_allocs = 0;
-  size_t num_reserves = 0;
-  size_t num_arena_extensions = 0;
-  size_t num_arena_shrinkages = 0;
-  size_t bytes_in_use = 0;
-  size_t total_allocated_bytes = 0;
-  size_t max_bytes_in_use = 0;
-  size_t max_alloc_size = 0;
-  size_t bytes_limit = 0;
+typedef struct OrtAllocatorStats {
+  size_t num_allocs;
+  size_t num_reserves;
+  size_t num_arena_extensions;
+  size_t num_arena_shrinkages;
+  size_t bytes_in_use;
+  size_t total_allocated_bytes;
+  size_t max_bytes_in_use;
+  size_t max_alloc_size;
+  size_t bytes_limit;
+
+  OrtAllocatorStats()
+      : num_allocs(0), num_reserves(0), num_arena_extensions(0),
+        num_arena_shrinkages(0), bytes_in_use(0), total_allocated_bytes(0),
+        max_bytes_in_use(0), max_alloc_size(0), bytes_limit(0) {}
 } OrtAllocatorStats;
 
 struct OrtApi;
