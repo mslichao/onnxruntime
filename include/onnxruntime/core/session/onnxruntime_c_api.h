@@ -4751,6 +4751,17 @@ struct OrtApi {
    */
   ORT_API2_STATUS(SetEpDynamicOptions, _Inout_ OrtSession* sess, _In_reads_(kv_len) const char* const* keys,
                   _In_reads_(kv_len) const char* const* values, _In_ size_t kv_len);
+
+  /** \brief Get the total allocated bytes on the specified device
+   *
+   * \param[in] sess OrtSession instance
+   * \param[in] device OrtMemoryInfoDeviceType instance
+   * \param[in, out] total_allocated_bytes Total allocated bytes on specified device
+   *
+   * \snippet{doc} snippets.dox OrtStatus Return Value
+   */
+  ORT_API2_STATUS(GetTotalAllocatedBytes, _In_ const OrtSession* sess, _In_ OrtMemoryInfoDeviceType device,
+                  _Inout_ int64_t* total_allocated_bytes);
 };
 
 /*

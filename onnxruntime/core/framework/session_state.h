@@ -364,6 +364,8 @@ class SessionState {
 
   const SessionOptions& GetSessionOptions() const { return sess_options_; }
 
+  int64_t GetTotalAllocatedBytes(OrtMemoryInfoDeviceType device) const;
+
  private:
   ORT_DISALLOW_COPY_ASSIGNMENT_AND_MOVE(SessionState);
 

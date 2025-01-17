@@ -1153,6 +1153,14 @@ struct SessionImpl : ConstSessionImpl<T> {
    * \param[in] kv_len Number of elements in the keys and values arrays
    */
   void SetEpDynamicOptions(const char* const* keys, const char* const* values, size_t kv_len);
+
+  /** \brief Get the total allocated bytes on the specified device
+   *
+   * Wraps OrtApi::GetTotalAllocatedBytes
+   *
+   * \param[in] device OrtMemoryInfoDeviceType instance
+   */
+  int64_t GetTotalAllocatedBytes(OrtMemoryInfoDeviceType device);
 };
 
 }  // namespace detail

@@ -2293,7 +2293,18 @@ including arg name, arg type (contains both type and shape).)pbdoc")
         ORT_UNUSED_PARAMETER(error_on_invalid);
         ORT_THROW("TunableOp and set_tuning_results are not supported in this build.");
 #endif
-      });
+      })
+      .def("get_total_allocated_bytes", [](PyInferenceSession* sess, const std::string& device) -> size_t {
+        OrtMemoryInfoDeviceType device_type;
+        if (device == "cpu") {
+          device_type = OrtMemoryInfoDeviceType::OrtMemoryInfoDeviceType_CPU;
+        } else if (device == "gpu") {
+          device_type = OrtMemoryInfoDeviceType::OrtMemoryInfoDeviceType_GPU;
+        } else {
+          throw std::runtime_error("Unsupported device type: " + device);
+        }
+        return sess->GetSessionHandle()->GetTotalAllocatedBytes(device_type);
+      }, R"pbdoc(Get total allocated bytes for the specified device.)pbdoc");
 
   py::enum_<onnxruntime::ArenaExtendStrategy>(m, "ArenaExtendStrategy", py::arithmetic())
       .value("kNextPowerOfTwo", onnxruntime::ArenaExtendStrategy::kNextPowerOfTwo)

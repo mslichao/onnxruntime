@@ -545,6 +545,10 @@ class InferenceSession {
    */
   Status AddPrePackedWeightsContainer(PrepackedWeightsContainer* prepacked_weights_container);
 
+  int64_t GetTotalAllocatedBytes(OrtMemoryInfoDeviceType device) const {
+    return session_state_->GetTotalAllocatedBytes(device);
+  }
+
  protected:
 #if !defined(ORT_MINIMAL_BUILD)
 

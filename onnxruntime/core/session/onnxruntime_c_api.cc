@@ -2410,6 +2410,14 @@ ORT_API_STATUS_IMPL(OrtApis::SessionOptionsSetCustomJoinThreadFn, _Inout_ OrtSes
   API_IMPL_END
 }
 
+ORT_API_STATUS_IMPL(OrtApis::GetTotalAllocatedBytes, _In_ const OrtSession* sess, _In_ OrtMemoryInfoDeviceType device, _Inout_ int64_t* total_allocated_bytes) {
+  API_IMPL_BEGIN
+  auto session = reinterpret_cast<const ::onnxruntime::InferenceSession*>(sess);
+  *total_allocated_bytes = session->GetTotalAllocatedBytes(device);
+  return nullptr;
+  API_IMPL_END
+}
+
 ORT_API(const OrtTrainingApi*, OrtApis::GetTrainingApi, uint32_t version) {
 #ifdef ENABLE_TRAINING_APIS
   if (version >= 13 && version <= ORT_API_VERSION)
@@ -2809,6 +2817,8 @@ static constexpr OrtApi ort_api_1_to_20 = {
     &OrtApis::RunOptionsAddActiveLoraAdapter,
 
     &OrtApis::SetEpDynamicOptions,
+
+    &OrtApis::GetTotalAllocatedBytes,
 };
 
 // OrtApiBase can never change as there is no way to know what version of OrtApiBase is returned by OrtGetApiBase.
