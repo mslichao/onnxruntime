@@ -10,6 +10,7 @@
 #include "core/common/safeint.h"
 #include "core/flatbuffers/schema/ort.fbs.h"
 #include "core/framework/allocator.h"
+#include "core/framework/bfc_arena.h"
 #include "core/framework/node_index_info.h"
 #include "core/framework/op_kernel.h"
 #include "core/framework/ort_value_pattern_planner.h"
@@ -1614,5 +1615,19 @@ void SessionState::RecycleDeviceStreamCollection(std::unique_ptr<DeviceStreamCol
   }
 }
 #endif
+
+Status SessionState::GetAllocatorStats(OrtMemoryInfoDeviceType device, AllocatorStats* stats) const {
+  for (auto it = allocators_->begin(); it != allocators_->end(); ++it) {
+    if (it->first.Type() == device) {
+      auto allocator = it->second;
+      auto* bfc_allocator = dynamic_cast<BFCArena*>(allocator.get());
+      if (bfc_allocator) {
+        bfc_allocator->GetStats(stats);
+        return Status::OK();
+      }
+    }
+  }
+  return ORT_MAKE_STATUS(ONNXRUNTIME, FAIL, "No BFCArena allocator found.");
+}
 
 }  // namespace onnxruntime

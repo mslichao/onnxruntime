@@ -1642,6 +1642,17 @@ void addObjectMethods(py::module& m, ExecutionProviderRegistrationFn ep_registra
     }
   }));
 
+  py::class_<AllocatorStats>(m, "AllocatorStats")
+      .def_readonly("num_allocs", &AllocatorStats::num_allocs)
+      .def_readonly("num_reserves", &AllocatorStats::num_reserves)
+      .def_readonly("num_arena_extensions", &AllocatorStats::num_arena_extensions)
+      .def_readonly("num_arena_shrinkages", &AllocatorStats::num_arena_shrinkages)
+      .def_readonly("bytes_in_use", &AllocatorStats::bytes_in_use)
+      .def_readonly("total_allocated_bytes", &AllocatorStats::total_allocated_bytes)
+      .def_readonly("max_bytes_in_use", &AllocatorStats::max_bytes_in_use)
+      .def_readonly("max_alloc_size", &AllocatorStats::max_alloc_size)
+      .def_readonly("bytes_limit", &AllocatorStats::bytes_limit);
+
   py::class_<PySessionOptions>
       sess(m, "SessionOptions", R"pbdoc(Configuration information for a session.)pbdoc");
   sess
@@ -2293,7 +2304,20 @@ including arg name, arg type (contains both type and shape).)pbdoc")
         ORT_UNUSED_PARAMETER(error_on_invalid);
         ORT_THROW("TunableOp and set_tuning_results are not supported in this build.");
 #endif
-      });
+      })
+      .def("get_allocator_stats", [](PyInferenceSession* sess, const std::string& device) -> AllocatorStats {
+        OrtMemoryInfoDeviceType device_type;
+        if (device == "cpu") {
+          device_type = OrtMemoryInfoDeviceType::OrtMemoryInfoDeviceType_CPU;
+        } else if (device == "gpu") {
+          device_type = OrtMemoryInfoDeviceType::OrtMemoryInfoDeviceType_GPU;
+        } else {
+          throw std::runtime_error("Unsupported device type: " + device);
+        }
+        AllocatorStats stats;
+        OrtPybindThrowIfError(sess->GetSessionHandle()->GetAllocatorStats(device_type, &stats));
+        return stats;
+      }, R"pbdoc(Get allocator statistics for the specified device.)pbdoc");
 
   py::enum_<onnxruntime::ArenaExtendStrategy>(m, "ArenaExtendStrategy", py::arithmetic())
       .value("kNextPowerOfTwo", onnxruntime::ArenaExtendStrategy::kNextPowerOfTwo)

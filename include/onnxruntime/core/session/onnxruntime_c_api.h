@@ -654,6 +654,22 @@ typedef struct OrtOpenVINOProviderOptions {
   unsigned char enable_dynamic_shapes;     ///< 0 = disabled, nonzero = enabled
 } OrtOpenVINOProviderOptions;
 
+/** \brief Allocator stats
+ *
+ * \see OrtApi::GetAllocatorStats
+ */
+typedef struct OrtAllocatorStats {
+  size_t num_allocs;
+  size_t num_reserves;
+  size_t num_arena_extensions;
+  size_t num_arena_shrinkages;
+  size_t bytes_in_use;
+  size_t total_allocated_bytes;
+  size_t max_bytes_in_use;
+  size_t max_alloc_size;
+  size_t bytes_limit;
+} OrtAllocatorStats;
+
 struct OrtApi;
 typedef struct OrtApi OrtApi;
 
@@ -4751,6 +4767,17 @@ struct OrtApi {
    */
   ORT_API2_STATUS(SetEpDynamicOptions, _Inout_ OrtSession* sess, _In_reads_(kv_len) const char* const* keys,
                   _In_reads_(kv_len) const char* const* values, _In_ size_t kv_len);
+
+  /** \brief Get allocator stats
+   *
+   * \param[in] sess OrtSession instance
+   * \param[in] device OrtMemoryInfoDeviceType instance
+   * \param[in, out] stats OrtAllocatorStats instance
+   *
+   * \snippet{doc} snippets.dox OrtStatus Return Value
+   */
+  ORT_API2_STATUS(GetAllocatorStats, _In_ const OrtSession* sess, _In_ OrtMemoryInfoDeviceType device,
+                  _Inout_ OrtAllocatorStats* stats);
 };
 
 /*
