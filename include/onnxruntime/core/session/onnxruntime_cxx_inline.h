@@ -1098,6 +1098,13 @@ inline void SessionImpl<T>::SetEpDynamicOptions(const char* const* keys, const c
   ThrowOnError(GetApi().SetEpDynamicOptions(this->p_, keys, values, kv_len));
 }
 
+template <typename T>
+inline int64_t SessionImpl<T>::GetTotalAllocatedBytes(OrtMemoryInfoDeviceType device) {
+  int64_t total_allocated_bytes = 0;
+  ThrowOnError(GetApi().GetTotalAllocatedBytes(this->p_, device, &total_allocated_bytes));
+  return total_allocated_bytes;
+}
+
 }  // namespace detail
 
 inline SessionOptions::SessionOptions() {

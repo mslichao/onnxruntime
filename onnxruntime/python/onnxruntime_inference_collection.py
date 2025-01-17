@@ -399,6 +399,15 @@ class Session:
         """
         self._sess.run_with_ortvaluevector(run_options, feed_names, feeds, fetch_names, fetches, fetch_devices)
 
+    def get_total_allocated_bytes(self, device: str):
+        """
+        Get total allocated bytes for the specified device.
+
+        :param device: The device type (e.g., 'cpu', 'gpu').
+        :return: Total allocated bytes.
+        """
+        return self._sess.get_total_allocated_bytes(device)
+
 
 class InferenceSession(Session):
     """

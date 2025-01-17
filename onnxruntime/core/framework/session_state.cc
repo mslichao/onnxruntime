@@ -1735,4 +1735,21 @@ void SessionState::RecycleDeviceStreamCollection(std::unique_ptr<DeviceStreamCol
 }
 #endif
 
+int64_t SessionState::GetTotalAllocatedBytes(OrtMemoryInfoDeviceType device) const {
+  int64_t total_allocated = 0;
+  AllocatorStats allocator_stats = {};
+  for (auto it = allocators_->begin(); it != allocators_->end(); ++it) {
+    if (it->first.Type() == device) {
+      auto allocator = it->second;
+      auto* bfc_allocator = dynamic_cast<IAllocator*>(allocator.get());
+      if (bfc_allocator) {
+        bfc_allocator->GetStats(&allocator_stats);
+        total_allocated += allocator_stats.total_allocated_bytes;
+        allocator_stats.Clear();
+      }
+    }
+  }
+  return total_allocated;
+}
+
 }  // namespace onnxruntime
